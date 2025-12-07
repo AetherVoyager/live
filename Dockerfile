@@ -81,6 +81,6 @@ ENV TG_SESSION_PATH=/app/sessions \
     TG_RECONNECT_MAX_ATTEMPTS=10 \
     TG_RECONNECT_TIMEOUT=90
 
-# Default command - start API server
+# Default command - start API server (uses TG_API_PORT env var)
 ENTRYPOINT ["tg-streamer"]
-CMD ["serve", "--host", "0.0.0.0", "--port", "8080", "--json-logs"]
+CMD ["serve", "--json-logs"]
