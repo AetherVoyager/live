@@ -1,0 +1,91 @@
+# Docker ignore file for Telegram Streamer
+
+# Git
+.git
+.gitignore
+.gitattributes
+
+# IDE
+.vscode
+.idea
+*.swp
+*.swo
+*~
+
+# Python
+__pycache__
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Virtual environments
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# Testing
+.tox/
+.nox/
+.coverage
+.coverage.*
+htmlcov/
+.pytest_cache/
+.hypothesis/
+nosetests.xml
+coverage.xml
+*.cover
+*.py,cover
+
+# MyPy
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# Ruff
+.ruff_cache/
+
+# Documentation
+docs/_build/
+*.md
+!README.md
+
+# Local development
+*.local
+.DS_Store
+Thumbs.db
+
+# Session files (should not be in image)
+sessions/
+*.session
+*.session-journal
+
+# CI/CD
+.github/
+
+# Monitoring configs (mounted at runtime)
+monitoring/
+
+# Local overrides
+docker-compose.override.yml
+docker-compose.local.yml

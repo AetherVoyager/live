@@ -1,0 +1,62 @@
+[Unit]
+Description=Telegram Streamer - Video Chat Streaming Service
+Documentation=https://github.com/AetherVoyager/live
+After=network.target network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=streamer
+Group=streamer
+WorkingDirectory=/opt/telegram-streamer
+
+# Environment file with Telegram credentials
+EnvironmentFile=/opt/telegram-streamer/.env
+
+# Python virtual environment
+Environment=PATH=/opt/telegram-streamer/.venv/bin:/usr/local/bin:/usr/bin:/bin
+Environment=PYTHONUNBUFFERED=1
+
+# Application settings
+Environment=TG_SESSION_PATH=/opt/telegram-streamer/sessions
+Environment=TG_LOG_JSON=true
+Environment=TG_LOG_LEVEL=INFO
+
+# Start command
+ExecStart=/opt/telegram-streamer/.venv/bin/tg-streamer serve --host 0.0.0.0 --port 8080 --json-logs
+
+# Restart policy
+Restart=always
+RestartSec=10
+StartLimitBurst=5
+StartLimitIntervalSec=60
+
+# Graceful shutdown
+TimeoutStopSec=30
+KillMode=mixed
+KillSignal=SIGTERM
+
+# Security hardening
+NoNewPrivileges=yes
+PrivateTmp=yes
+ProtectSystem=strict
+ProtectHome=yes
+ReadWritePaths=/opt/telegram-streamer/sessions
+ProtectKernelTunables=yes
+ProtectKernelModules=yes
+ProtectControlGroups=yes
+RestrictSUIDSGID=yes
+RestrictNamespaces=yes
+
+# Resource limits
+LimitNOFILE=65536
+MemoryMax=1G
+CPUQuota=200%
+
+# Logging
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=telegram-streamer
+
+[Install]
+WantedBy=multi-user.target

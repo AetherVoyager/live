@@ -1,0 +1,140 @@
+# Telegram Streamer - Docker Compose Configuration
+# 
+# Usage:
+#   cp .env.example .env
+#   # Edit .env with your Telegram credentials
+#   docker-compose up -d
+
+version: "3.9"
+
+services:
+  telegram-streamer:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: telegram-streamer:latest
+    container_name: telegram-streamer
+    restart: unless-stopped
+    
+    # Environment variables
+    env_file:
+      - .env
+    
+    environment:
+      # Override defaults as needed
+      TG_API_HOST: "0.0.0.0"
+      TG_API_PORT: "8080"
+      TG_LOG_LEVEL: "${TG_LOG_LEVEL:-INFO}"
+      TG_LOG_JSON: "true"
+      TG_SESSION_PATH: "/app/sessions"
+      TG_RECONNECT_ENABLED: "true"
+      TG_RECONNECT_MAX_ATTEMPTS: "10"
+      TG_RECONNECT_TIMEOUT: "90"
+    
+    ports:
+      # API and metrics port
+      - "${API_PORT:-8080}:8080"
+    
+    volumes:
+      # Persist Telegram sessions
+      - telegram_sessions:/app/sessions
+      # Optional: mount custom session file
+      # - ./sessions:/app/sessions
+    
+    # Resource limits
+    deploy:
+      resources:
+        limits:
+          cpus: "2.0"
+          memory: 1G
+        reservations:
+          cpus: "0.5"
+          memory: 256M
+    
+    # Health check
+    healthcheck:
+      test: ["CMD", "python", "-c", "import httpx; httpx.get('http://localhost:8080/health').raise_for_status()"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    
+    # Logging
+    logging:
+      driver: json-file
+      options:
+        max-size: "50m"
+        max-file: "5"
+    
+    # Security
+    security_opt:
+      - no-new-privileges:true
+    read_only: false
+    
+    networks:
+      - streamer-network
+
+  # Optional: Prometheus for metrics
+  prometheus:
+    image: prom/prometheus:v2.47.2
+    container_name: streamer-prometheus
+    restart: unless-stopped
+    profiles:
+      - monitoring
+    
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus_data:/prometheus
+    
+    command:
+      - "--config.file=/etc/prometheus/prometheus.yml"
+      - "--storage.tsdb.path=/prometheus"
+      - "--web.enable-lifecycle"
+    
+    ports:
+      - "9090:9090"
+    
+    networks:
+      - streamer-network
+    
+    depends_on:
+      - telegram-streamer
+
+  # Optional: Grafana for dashboards
+  grafana:
+    image: grafana/grafana:10.2.0
+    container_name: streamer-grafana
+    restart: unless-stopped
+    profiles:
+      - monitoring
+    
+    environment:
+      GF_SECURITY_ADMIN_USER: admin
+      GF_SECURITY_ADMIN_PASSWORD: "${GRAFANA_PASSWORD:-admin}"
+      GF_USERS_ALLOW_SIGN_UP: "false"
+    
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./monitoring/grafana/provisioning:/etc/grafana/provisioning:ro
+    
+    ports:
+      - "3000:3000"
+    
+    networks:
+      - streamer-network
+    
+    depends_on:
+      - prometheus
+
+volumes:
+  telegram_sessions:
+    name: telegram-streamer-sessions
+  prometheus_data:
+    name: telegram-streamer-prometheus
+  grafana_data:
+    name: telegram-streamer-grafana
+
+networks:
+  streamer-network:
+    name: telegram-streamer-network
+    driver: bridge
