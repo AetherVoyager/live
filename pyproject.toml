@@ -23,7 +23,7 @@ classifiers = [
 ]
 
 dependencies = [
-    "pyrogram>=2.0.0",
+    "hydrogram>=0.1.4",
     "py-tgcalls>=2.2.8",
     "tgcrypto>=1.2.5",
     "fastapi>=0.104.0",

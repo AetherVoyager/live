@@ -8,9 +8,10 @@ FROM python:3.13-slim as builder
 
 WORKDIR /build
 
-# Install build dependencies
+# Install build dependencies (libc6-dev provides stdint.h for TgCrypto)
 RUN apt-get update && apt-get install -y --no-install-recommends \
     gcc \
+    libc6-dev \
     libffi-dev \
     && rm -rf /var/lib/apt/lists/*
 
