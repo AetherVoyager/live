@@ -38,8 +38,6 @@ services:
     volumes:
       # Persist Telegram sessions
       - telegram_sessions:/app/sessions
-      # Optional: mount custom session file
-      # - ./sessions:/app/sessions
     
     # Resource limits
     deploy:
@@ -74,65 +72,9 @@ services:
     networks:
       - streamer-network
 
-  # Optional: Prometheus for metrics
-  prometheus:
-    image: prom/prometheus:v2.47.2
-    container_name: streamer-prometheus
-    restart: unless-stopped
-    profiles:
-      - monitoring
-    
-    volumes:
-      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml:ro
-      - prometheus_data:/prometheus
-    
-    command:
-      - "--config.file=/etc/prometheus/prometheus.yml"
-      - "--storage.tsdb.path=/prometheus"
-      - "--web.enable-lifecycle"
-    
-    ports:
-      - "9090:9090"
-    
-    networks:
-      - streamer-network
-    
-    depends_on:
-      - telegram-streamer
-
-  # Optional: Grafana for dashboards
-  grafana:
-    image: grafana/grafana:10.2.0
-    container_name: streamer-grafana
-    restart: unless-stopped
-    profiles:
-      - monitoring
-    
-    environment:
-      GF_SECURITY_ADMIN_USER: admin
-      GF_SECURITY_ADMIN_PASSWORD: "${GRAFANA_PASSWORD:-admin}"
-      GF_USERS_ALLOW_SIGN_UP: "false"
-    
-    volumes:
-      - grafana_data:/var/lib/grafana
-      - ./monitoring/grafana/provisioning:/etc/grafana/provisioning:ro
-    
-    ports:
-      - "3000:3000"
-    
-    networks:
-      - streamer-network
-    
-    depends_on:
-      - prometheus
-
 volumes:
   telegram_sessions:
     name: telegram-streamer-sessions
-  prometheus_data:
-    name: telegram-streamer-prometheus
-  grafana_data:
-    name: telegram-streamer-grafana
 
 networks:
   streamer-network:

@@ -1,11 +1,11 @@
-"""Core Telegram client and streaming functionality using Pyrogram + PyTgCalls."""
+"""Core Telegram client and streaming functionality using Hydrogram + PyTgCalls."""
 
 import asyncio
 import uuid
 from typing import Callable, Optional
 
-from pyrogram import Client
-from pyrogram.errors import (
+from hydrogram import Client
+from hydrogram.errors import (
     AuthKeyUnregistered,
     ChatAdminRequired,
     ChannelPrivate,

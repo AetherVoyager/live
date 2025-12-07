@@ -156,14 +156,24 @@ cython_debug/
 Thumbs.db
 
 # Telegram session files
-sessions/
+sessions/*.session
+sessions/*.session-journal
 *.session
 *.session-journal
+
+# Environment files with secrets
+.env
+.env.local
+.env.*.local
 
 # Local development
 *.local
 docker-compose.override.yml
 docker-compose.local.yml
+
+# Test files
+test_*.py
+check_*.py
 
 # Test sessions
 test_sessions/
